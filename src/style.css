@@ -43,8 +43,8 @@ input[type="range"] { width: 100%; margin: 0; padding: 0; height: 28px; backgrou
 .flight .sep { color: #555; margin: 0 4px; }
 #controls .icon { font-size: 26px; padding: 6px 8px; }
 /* Same background as the page so the home-indicator area never shows as a separate band. */
-#tabs { display: flex; background: #111; border-top: 1px solid #222; padding-bottom: env(safe-area-inset-bottom); }
-#tabs button { flex: 1; background: none; border: none; color: #777; font-size: 15px; font-weight: 600; padding: 14px 0; }
+#tabs { display: flex; gap: 8px; background: #111; border-top: 1px solid #222; padding: 6px 12px calc(6px + env(safe-area-inset-bottom)); }
+#tabs button { flex: 1; background: none; border: none; color: #777; font-size: 16px; font-weight: 600; padding: 18px 0 16px; border-radius: 12px; }
 #tabs button.active { color: #4ade80; }
 
 .numbers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
