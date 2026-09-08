@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="nb">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Disc Reader" />
+    <meta name="theme-color" content="#111111" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <title>Disc Reader</title>
+  </head>
+  <body>
+    <header>
+      <h1>Disc Reader</h1>
+      <span id="count"></span>
+    </header>
+
+    <div id="installBanner" class="banner" hidden>
+      <span>Legg til på Hjem-skjermen for å bruke den som app.</span>
+      <button id="installHow" type="button">Slik gjør du</button>
+      <button id="installDismiss" type="button" class="icon" aria-label="Skjul">×</button>
+    </div>
+
+    <section class="view active" data-view="add">
+      <form id="entry" autocomplete="off">
+        <div class="numbers">
+          <label data-field="speed">Speed<input id="speed" inputmode="decimal" placeholder="9" /></label>
+          <label data-field="glide">Glide<input id="glide" inputmode="decimal" placeholder="5" /></label>
+          <label data-field="turn">Turn<input id="turn" inputmode="decimal" placeholder="-1" /><button id="turnSign" type="button" aria-label="Bytt fortegn på turn">±</button></label>
+          <label data-field="fade">Fade<input id="fade" inputmode="decimal" placeholder="2" /></label>
+        </div>
+        <div class="name-row">
+          <input id="name" placeholder="Navn" enterkeyhint="done" />
+          <button id="add" type="submit">Legg til</button>
+        </div>
+        <div class="photo-row">
+          <label class="chip"><span id="photoLabel">Bilde</span><input id="photoInput" type="file" accept="image/*" hidden /></label>
+          <img id="photoPreview" alt="" hidden />
+          <button id="photoClear" type="button" class="chip" hidden>Fjern bilde</button>
+        </div>
+        <p class="hint">Turn blir negativ automatisk: skriv 1 for -1. Bruk ± for positiv turn.</p>
+        <p id="entryError" class="error"></p>
+      </form>
+
+      <h2>Dine disker</h2>
+      <ul id="list"></ul>
+      <p id="listEmpty" class="empty">Ingen disker ennå. Skriv inn de fire flytallene fra en disk og trykk Legg til.</p>
+    </section>
+
+    <section class="view" data-view="compare">
+      <svg id="chart" role="img" aria-label="Flybaner" preserveAspectRatio="xMidYMax meet"></svg>
+      <div class="compare-bar">
+        <ul id="legend" class="legend"></ul>
+        <button id="selectDiscs" type="button">Velg disker</button>
+      </div>
+    </section>
+
+    <section class="view" data-view="learn">
+      <svg id="learnChart" role="img" aria-label="Flybane for eksempeldisken" preserveAspectRatio="xMidYMax meet"></svg>
+      <p id="learnSummary" class="learn-summary"></p>
+      <div id="learnSliders" class="learn-sliders">
+        <label class="slider" data-field="speed"><span class="slider-label">Speed <span data-value="speed"></span></span><input type="range" data-field="speed" min="1" max="15" step="1" /></label>
+        <label class="slider" data-field="glide"><span class="slider-label">Glide <span data-value="glide"></span></span><input type="range" data-field="glide" min="1" max="7" step="1" /></label>
+        <label class="slider" data-field="turn"><span class="slider-label">Turn <span data-value="turn"></span></span><input type="range" data-field="turn" min="-5" max="1" step="1" /></label>
+        <label class="slider" data-field="fade"><span class="slider-label">Fade <span data-value="fade"></span></span><input type="range" data-field="fade" min="0" max="5" step="1" /></label>
+      </div>
+      <div class="learn-text">
+        <h3 data-field="speed">Speed <small>1–15</small></h3>
+        <p>Hvor fort disken må kastes for å fly slik tallene lover. Høy speed gir lengre kast for en arm som klarer den. Kastes den for sakte, oppfører den seg mer overstabilt: mindre turn og mer fade. Putter er 1–3, midrange 4–5, fairway-driver 6–8 og distansedriver 9 og oppover.</p>
+        <h3 data-field="glide">Glide <small>1–7</small></h3>
+        <p>Hvor godt disken holder seg i lufta. Mer glide gir lengre kast og mykere landinger, men gjør disken mer følsom for vind.</p>
+        <h3 data-field="turn">Turn <small>-5 til 1</small></h3>
+        <p>Hvor mye disken svinger ut tidlig i flukten, mens farten er høy. For høyrehendt backhand er det til høyre. -5 svinger mest, 0 flyr rett, og 1 motstår svingen helt.</p>
+        <h3 data-field="fade">Fade <small>0–5</small></h3>
+        <p>Hvor hardt disken kroker tilbake på slutten når farten avtar. For høyrehendt backhand er det til venstre. 0 lander rett fram, 5 kroker kraftig.</p>
+        <h3>Turn + fade = stabilitet</h3>
+        <p>Summen sier hvor stabil disken er. Negativt er understabilt (svinger ut og blir der), rundt null flyr rett, og over 2 er overstabilt (kroker hardt). Dra i glidebryterne og se hvordan banen endrer seg med din armfart.</p>
+      </div>
+    </section>
+
+    <div id="controls">
+      <label class="slider">
+        <span class="slider-label">Armfart <span id="powerLabel"></span></span>
+        <input id="power" type="range" min="0" max="100" step="1" />
+      </label>
+      <button id="settingsButton" type="button" class="icon" aria-label="Kasterprofil">⚙</button>
+    </div>
+    <nav id="tabs">
+      <button type="button" data-view="add" class="active">Legg til</button>
+      <button type="button" data-view="compare">Sammenlign</button>
+      <button type="button" data-view="learn">Lær</button>
+    </nav>
+
+    <div id="profile" class="sheet"><div class="panel"></div></div>
+
+    <div id="selectSheet" class="sheet">
+      <div class="panel">
+        <h2>Hvilke disker vil du sammenligne?</h2>
+        <ul id="selectList" class="select-list"></ul>
+        <button type="button" class="close">Ferdig</button>
+      </div>
+    </div>
+
+    <div id="installSheet" class="sheet">
+      <div class="panel">
+        <h2>Installer som app</h2>
+        <p class="hint">iPhone: trykk Del-knappen i Safari og velg «Legg til på Hjem-skjerm».</p>
+        <p class="hint">Android: åpne menyen i Chrome og velg «Legg til på startskjermen».</p>
+        <p class="hint">Da åpner den i fullskjerm med eget ikon.</p>
+        <button type="button" class="close">Ferdig</button>
+      </div>
+    </div>
+
+    <div id="settingsSheet" class="sheet">
+      <div class="panel">
+        <h2>Kasterprofil</h2>
+        <div id="throwSettings" class="segments">
+          <div class="segment" data-key="hand">
+            <button type="button" data-value="right">Høyre hånd</button>
+            <button type="button" data-value="left">Venstre hånd</button>
+          </div>
+          <div class="segment" data-key="throw">
+            <button type="button" data-value="backhand">Backhand</button>
+            <button type="button" data-value="forehand">Forehand</button>
+          </div>
+        </div>
+        <button type="button" class="close">Ferdig</button>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
