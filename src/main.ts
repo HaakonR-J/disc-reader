@@ -545,19 +545,42 @@ window.addEventListener('resize', () => {
   if (view === 'learn') renderLearn()
 })
 
-// iOS home-screen apps can be left scrolled up by the keyboard's height after it closes, which
-// shows as an empty band under the tab bar. Snap back whenever the keyboard or viewport changes.
-function snapToTop(): void {
+// iOS home-screen apps sometimes keep a stale, too-small viewport after the keyboard closes or on a
+// cold start (WebKit bug). Size the body from the largest viewport height seen and force WebKit to
+// re-measure by toggling the layout once the keyboard has gone.
+let largestHeight = window.innerHeight
+
+function fitViewport(): void {
+  largestHeight = Math.max(largestHeight, window.innerHeight)
+  document.body.style.height = `${largestHeight}px`
   window.scrollTo(0, 0)
-  document.documentElement.scrollTop = 0
-  document.body.scrollTop = 0
 }
-window.visualViewport?.addEventListener('resize', snapToTop)
-window.visualViewport?.addEventListener('scroll', snapToTop)
-document.addEventListener('focusout', () => {
-  window.setTimeout(snapToTop, 50)
-  window.setTimeout(snapToTop, 300)
+
+function healViewport(): void {
+  if (largestHeight - window.innerHeight <= 4) {
+    fitViewport()
+    return
+  }
+  const active = document.querySelector<HTMLElement>('.view.active')
+  const scrollTop = active?.scrollTop ?? 0
+  document.body.style.display = 'none'
+  void document.body.offsetHeight
+  document.body.style.display = ''
+  if (active) active.scrollTop = scrollTop
+  fitViewport()
+}
+
+window.addEventListener('resize', fitViewport)
+window.addEventListener('orientationchange', () => {
+  largestHeight = 0
+  window.setTimeout(fitViewport, 300)
 })
+window.visualViewport?.addEventListener('resize', fitViewport)
+document.addEventListener('focusout', () => {
+  window.setTimeout(healViewport, 140)
+  window.setTimeout(healViewport, 400)
+})
+fitViewport()
 
 learnDisc.name = autoName(learnDisc)
 updateNamePlaceholder()

@@ -4,11 +4,13 @@
 [data-field="glide"] { --c: var(--c-glide); }
 [data-field="turn"] { --c: var(--c-turn); }
 [data-field="fade"] { --c: var(--c-fade); }
-html { height: 100%; overscroll-behavior: none; }
+html { height: 100%; overflow: hidden; overscroll-behavior: none; }
 body {
   margin: 0; background: #111; color: #eee; font-family: system-ui, -apple-system, sans-serif;
-  /* Pinned to the viewport so iOS never rubber-bands the page itself; only the views scroll. */
-  position: fixed; inset: 0; display: flex; flex-direction: column; overflow: hidden;
+  /* Flow layout sized to the viewport, not a fixed container: iOS 26 home-screen apps leave a
+     toolbar-sized gap under viewport-sized fixed containers (WebKit bug, fixed in Safari 26.1).
+     The document never scrolls; each tab is its own scroll container. */
+  height: 100%; display: flex; flex-direction: column; overflow: hidden;
   overscroll-behavior: none; -webkit-font-smoothing: antialiased; touch-action: manipulation;
   -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
 }
