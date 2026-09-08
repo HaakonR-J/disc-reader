@@ -545,6 +545,20 @@ window.addEventListener('resize', () => {
   if (view === 'learn') renderLearn()
 })
 
+// iOS home-screen apps can be left scrolled up by the keyboard's height after it closes, which
+// shows as an empty band under the tab bar. Snap back whenever the keyboard or viewport changes.
+function snapToTop(): void {
+  window.scrollTo(0, 0)
+  document.documentElement.scrollTop = 0
+  document.body.scrollTop = 0
+}
+window.visualViewport?.addEventListener('resize', snapToTop)
+window.visualViewport?.addEventListener('scroll', snapToTop)
+document.addEventListener('focusout', () => {
+  window.setTimeout(snapToTop, 50)
+  window.setTimeout(snapToTop, 300)
+})
+
 learnDisc.name = autoName(learnDisc)
 updateNamePlaceholder()
 renderList()
